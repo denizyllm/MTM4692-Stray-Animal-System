@@ -39,7 +39,7 @@ The database schema has been carefully expanded to **7 tables** to fully normali
 | `Vaccination_Records`| Logs of applied vaccines and upcoming due dates. | FK to `Animals` |
 | `Vet_Visits` | Clinical diagnosis and treatment histories. | FK to `Animals` |
 | `Adoption_Requests` | Tracking potential adopters and request statuses. | FK to `Animals` |
-| `Supplies_Donations` | Tracking donated items assigned to specific volunteers. | FK to `Foster_Volunteers` |
+| `Supplies_Donation` | Tracking donated items assigned to specific volunteers. | FK to `Foster_Volunteers` |
 
 ### 🗺️ Entity Relationship Diagram (ERD)
 
