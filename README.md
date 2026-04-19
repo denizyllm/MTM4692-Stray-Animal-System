@@ -34,7 +34,7 @@ The database schema has been carefully expanded to **7 tables** to fully normali
 | Table Name | Description | Key Relationships |
 | :--- | :--- | :--- |
 | `Animal_Types` | Master data for animal species/breeds. | 1:N with `Animals` |
-| `Foster_Volunteers`| Volunteer contact info and max safe capacity limit. | 1:N with `Animals` & `Supplies_Donations` |
+| `Foster_Volunteers`| Volunteer contact info and max safe capacity limit. | 1:N with `Animals` & `Supplies_Donation` |
 | `Animals` | Core identity, age, status, and current assignment. | FK to `Foster_Volunteers` & `Animal_Types` |
 | `Vaccination_Records`| Logs of applied vaccines and upcoming due dates. | FK to `Animals` |
 | `Vet_Visits` | Clinical diagnosis and treatment histories. | FK to `Animals` |
@@ -137,10 +137,9 @@ ORDER BY u.next_due_date ASC;
 ## 📂 Repository Structure
 
 ```text
-stray-animal-db/
+MTM4692-Stray-Animal-System/
 ├── README.md                 ← Project justification, schema, and sample queries
-├── docs/
-│   └── schema_design.png     ← High-res ER Diagram
+├── erd.png                   ← High-res ER Diagram
 ├── sql/
 │   └── 01_schema.sql         ← (Phase 2) DDL for creating tables
 │   └── 02_mock_data.sql      ← (Phase 2) DML for inserting sample data
