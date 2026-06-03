@@ -123,7 +123,7 @@ try:
             submit_animal = st.form_submit_button("Save to Database")
             
             if submit_animal:
-                cursor.execute("INSERT INTO Animals (name, age, gender, type_id, health_status, arrival_date, status) VALUES (%s, %s, %s, %s, %s, CURRENT_DATE, 'Available')", (a_name, a_age, a_gender, a_type, a_health))
+                cursor.execute("INSERT INTO Animals (name, age, gender, type_id, health_status, arrival_date, status) VALUES (%s, %s, %s, %s, %s, CURRENT_DATE, 'Unassigned')", (a_name, a_age, a_gender, a_type, a_health))
                 conn.commit()
                 st.session_state['success_msg'] = f"{a_name} successfully registered!"
                 st.rerun()
@@ -210,7 +210,7 @@ try:
                 
                 if submit_unassign:
                     anim_id = assigned_dict[selected_assigned]
-                    cursor.execute("UPDATE Animals SET volunteer_id = NULL, status = 'Available' WHERE animal_id = %s", (anim_id,))
+                    cursor.execute("UPDATE Animals SET volunteer_id = NULL, status = 'Unassigned' WHERE animal_id = %s", (anim_id,))
                     conn.commit()
                     st.session_state['success_msg'] = f"Successfully unassigned {selected_assigned.split(' (')[0]}!"
                     st.rerun()
@@ -218,4 +218,6 @@ try:
             st.info("There are currently no assigned animals.")
 
 except Exception as e:
+    if conn:
+        conn.rollback()
     st.error(f"Connection Error: {e}")
