@@ -21,13 +21,14 @@ try:
         st.success(st.session_state['success_msg'])
         del st.session_state['success_msg']
     
-    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
         "📊 System Overview", 
         "🚨 Alerts & Reports", 
         "➕ Register Volunteer", 
         "🐶 Register Animal",
         "💉 Add Vaccine Record",
-        "🤝 Assign Foster"
+        "🤝 Assign Foster",
+        "📈 Student Analytics"
     ])
     
     with tab1:
@@ -123,7 +124,7 @@ try:
             submit_animal = st.form_submit_button("Save to Database")
             
             if submit_animal:
-                cursor.execute("INSERT INTO Animals (name, age, gender, type_id, health_status, arrival_date, status) VALUES (%s, %s, %s, %s, %s, CURRENT_DATE, 'Unassigned')", (a_name, a_age, a_gender, a_type, a_health))
+                cursor.execute("INSERT INTO Animals (name, age, gender, type_id, health_status, arrival_date, status) VALUES (%s, %s, %s, %s, %s, CURRENT_DATE, 'Available')", (a_name, a_age, a_gender, a_type, a_health))
                 conn.commit()
                 st.session_state['success_msg'] = f"{a_name} successfully registered!"
                 st.rerun()
@@ -210,12 +211,28 @@ try:
                 
                 if submit_unassign:
                     anim_id = assigned_dict[selected_assigned]
-                    cursor.execute("UPDATE Animals SET volunteer_id = NULL, status = 'Unassigned' WHERE animal_id = %s", (anim_id,))
+                    cursor.execute("UPDATE Animals SET volunteer_id = NULL, status = 'Available' WHERE animal_id = %s", (anim_id,))
                     conn.commit()
                     st.session_state['success_msg'] = f"Successfully unassigned {selected_assigned.split(' (')[0]}!"
                     st.rerun()
         else:
             st.info("There are currently no assigned animals.")
+
+    with tab7:
+        st.subheader("SQL-Driven Student Performance Analytics")
+        cursor.execute("""
+            SELECT f.name, COUNT(a.animal_id) * 10
+            FROM Foster_Volunteers f
+            LEFT JOIN Animals a ON f.volunteer_id = a.volunteer_id
+            GROUP BY f.name
+        """)
+        student_data = cursor.fetchall()
+        
+        if student_data:
+            chart_data = {row[0]: row[1] for row in student_data}
+            st.bar_chart(chart_data)
+        else:
+            st.info("No analytics data available yet.")
 
 except Exception as e:
     if conn:
