@@ -17,7 +17,6 @@ try:
     st.title("🐾 Stray Animal Health & Foster Dashboard")
     st.markdown("---")
     
-    
     if 'success_msg' in st.session_state:
         st.success(st.session_state['success_msg'])
         del st.session_state['success_msg']
@@ -111,7 +110,7 @@ try:
                 cursor.execute("INSERT INTO Foster_Volunteers (name, phone, address, capacity) VALUES (%s, %s, %s, %s)", (v_name, v_phone, v_address, v_capacity))
                 conn.commit()
                 st.session_state['success_msg'] = f"{v_name} successfully added to the live database!"
-                st.rerun() 
+                st.rerun()
     
     with tab4:
         st.subheader("Register a New Rescued Animal")
@@ -127,7 +126,7 @@ try:
                 cursor.execute("INSERT INTO Animals (name, age, gender, type_id, health_status, arrival_date, status) VALUES (%s, %s, %s, %s, %s, CURRENT_DATE, 'Available')", (a_name, a_age, a_gender, a_type, a_health))
                 conn.commit()
                 st.session_state['success_msg'] = f"{a_name} successfully registered!"
-                st.rerun() 
+                st.rerun()
 
     with tab5:
         st.subheader("Add New Vaccination Record")
@@ -150,7 +149,7 @@ try:
                     cursor.execute("INSERT INTO Vaccination_Records (animal_id, vaccine_name, vaccination_date, next_due_date) VALUES (%s, %s, %s, %s)", (animal_id, vac_name, vac_date, next_due))
                     conn.commit()
                     st.session_state['success_msg'] = f"Vaccination record for {selected_animal.split(' (')[0]} successfully added!"
-                    st.rerun() 
+                    st.rerun()
         else:
             st.warning("You need to register an animal first before adding a vaccine record.")
 
@@ -160,7 +159,6 @@ try:
         cursor.execute("SELECT animal_id, name FROM Animals WHERE volunteer_id IS NULL ORDER BY name;")
         unassigned_animals = cursor.fetchall()
         
-       
         cursor.execute("""
             SELECT f.volunteer_id, f.name 
             FROM Foster_Volunteers f
@@ -177,7 +175,7 @@ try:
             
             with st.form("assign_foster_form"):
                 selected_unassigned = st.selectbox("Select Unassigned Animal", list(unassigned_dict.keys()))
-                selected_volunteer = st.selectbox("Select Foster Volunteer (Only available capacity)", list(volunteer_dict.keys()))
+                selected_volunteer = st.selectbox("Select Foster Volunteer", list(volunteer_dict.keys()))
                 
                 submit_assign = st.form_submit_button("Confirm Assignment")
                 
@@ -188,12 +186,36 @@ try:
                     cursor.execute("UPDATE Animals SET volunteer_id = %s, status = 'Fostered' WHERE animal_id = %s", (vol_id, anim_id))
                     conn.commit()
                     st.session_state['success_msg'] = f"Successfully assigned {selected_unassigned.split(' (')[0]} to {selected_volunteer.split(' (')[0]}!"
-                    st.rerun() 
+                    st.rerun()
         else:
             if not unassigned_animals:
-                st.info("There are currently no unassigned animals. Everyone has a foster home! 🎉")
+                st.info("There are currently no unassigned animals. Everyone has a foster home!")
             if not available_volunteers:
-                st.error("🚨 All volunteers are currently at maximum capacity! You cannot assign any more animals.")
+                st.error("All volunteers are currently at maximum capacity! You cannot assign any more animals.")
+        
+        st.divider()
+        
+        st.subheader("Unassign Animal from Foster")
+        
+        cursor.execute("SELECT animal_id, name FROM Animals WHERE volunteer_id IS NOT NULL ORDER BY name;")
+        assigned_animals = cursor.fetchall()
+        
+        if assigned_animals:
+            assigned_dict = {f"{a[1]} (ID: {a[0]})": a[0] for a in assigned_animals}
+            
+            with st.form("unassign_foster_form"):
+                selected_assigned = st.selectbox("Select Animal to Unassign", list(assigned_dict.keys()))
+                
+                submit_unassign = st.form_submit_button("Unassign")
+                
+                if submit_unassign:
+                    anim_id = assigned_dict[selected_assigned]
+                    cursor.execute("UPDATE Animals SET volunteer_id = NULL, status = 'Available' WHERE animal_id = %s", (anim_id,))
+                    conn.commit()
+                    st.session_state['success_msg'] = f"Successfully unassigned {selected_assigned.split(' (')[0]}!"
+                    st.rerun()
+        else:
+            st.info("There are currently no assigned animals.")
 
 except Exception as e:
     st.error(f"Connection Error: {e}")
