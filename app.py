@@ -31,7 +31,7 @@ try:
     ])
     
     with tab1:
-        st.subheader("👥 All Foster Volunteers")
+        st.subheader("👥 All Foster Volunteers / Adopters")
         cursor.execute("SELECT volunteer_id AS \"ID\", name AS \"Name\", phone AS \"Phone\", address AS \"Address\", capacity AS \"Capacity\" FROM Foster_Volunteers ORDER BY volunteer_id;")
         volunteers = cursor.fetchall()
         if volunteers:
@@ -45,7 +45,7 @@ try:
         cursor.execute("""
             SELECT a.animal_id AS "ID", a.name AS "Name", a.age AS "Age", a.gender AS "Gender", 
                    t.type_name AS "Species", a.health_status AS "Health Status", a.status AS "Foster Status",
-                   COALESCE(f.name, 'Unassigned') AS "Foster Volunteer"
+                   COALESCE(f.name, 'Unassigned') AS "Assigned Person"
             FROM Animals a
             LEFT JOIN Animal_Types t ON a.type_id = t.type_id
             LEFT JOIN Foster_Volunteers f ON a.volunteer_id = f.volunteer_id
@@ -98,7 +98,7 @@ try:
                 st.success("There is no urgent vaccine that needs to be administered within the next 30 days!")
     
     with tab3:
-        st.subheader("Add New Foster Volunteer")
+        st.subheader("Add New Foster Volunteer / Adopter")
         with st.form("new_volunteer_form"):
             v_name = st.text_input("Full Name")
             v_phone = st.text_input("Phone Number")
@@ -154,7 +154,7 @@ try:
             st.warning("You need to register an animal first before adding a vaccine record.")
 
     with tab6:
-        st.subheader("Assign Animal to a Foster Volunteer")
+        st.subheader("Assign Animal to a Person")
         
         cursor.execute("SELECT animal_id, name FROM Animals WHERE volunteer_id IS NULL ORDER BY name;")
         unassigned_animals = cursor.fetchall()
@@ -175,27 +175,29 @@ try:
             
             with st.form("assign_foster_form"):
                 selected_unassigned = st.selectbox("Select Unassigned Animal", list(unassigned_dict.keys()))
-                selected_volunteer = st.selectbox("Select Foster Volunteer", list(volunteer_dict.keys()))
+                selected_volunteer = st.selectbox("Select Person", list(volunteer_dict.keys()))
+                assignment_type = st.selectbox("Assignment Type", ["Fostered (Temporary)", "Adopted (Permanent)"])
                 
                 submit_assign = st.form_submit_button("Confirm Assignment")
                 
                 if submit_assign:
                     anim_id = unassigned_dict[selected_unassigned]
                     vol_id = volunteer_dict[selected_volunteer]
+                    new_status = 'Fostered' if 'Fostered' in assignment_type else 'Adopted'
                     
-                    cursor.execute("UPDATE Animals SET volunteer_id = %s, status = 'Fostered' WHERE animal_id = %s", (vol_id, anim_id))
+                    cursor.execute("UPDATE Animals SET volunteer_id = %s, status = %s WHERE animal_id = %s", (vol_id, new_status, anim_id))
                     conn.commit()
-                    st.session_state['success_msg'] = f"Successfully assigned {selected_unassigned.split(' (')[0]} to {selected_volunteer.split(' (')[0]}!"
+                    st.session_state['success_msg'] = f"Successfully assigned {selected_unassigned.split(' (')[0]} to {selected_volunteer.split(' (')[0]} as {new_status}!"
                     st.rerun()
         else:
             if not unassigned_animals:
-                st.info("There are currently no unassigned animals. Everyone has a foster home!")
+                st.info("There are currently no unassigned animals. Everyone has a home!")
             if not available_volunteers:
-                st.error("All volunteers are currently at maximum capacity! You cannot assign any more animals.")
+                st.error("All people are currently at maximum capacity! You cannot assign any more animals.")
         
         st.divider()
         
-        st.subheader("Unassign Animal from Foster")
+        st.subheader("Unassign Animal (Return to Shelter)")
         
         cursor.execute("SELECT animal_id, name FROM Animals WHERE volunteer_id IS NOT NULL ORDER BY name;")
         assigned_animals = cursor.fetchall()
@@ -212,7 +214,7 @@ try:
                     anim_id = assigned_dict[selected_assigned]
                     cursor.execute("UPDATE Animals SET volunteer_id = NULL, status = 'Available' WHERE animal_id = %s", (anim_id,))
                     conn.commit()
-                    st.session_state['success_msg'] = f"Successfully unassigned {selected_assigned.split(' (')[0]}!"
+                    st.session_state['success_msg'] = f"Successfully unassigned {selected_assigned.split(' (')[0]}! It is now Available."
                     st.rerun()
         else:
             st.info("There are currently no assigned animals.")
