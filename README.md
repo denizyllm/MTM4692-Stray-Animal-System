@@ -51,10 +51,10 @@ Below is the structured schema design mapping primary keys, foreign keys, and in
 ## 🛡️ Business Rules Implemented in SQL
 The core logical bounds are strictly enforced natively at the database level using SQL constraints to secure data integrity: 
 
-**Capacity Integrity:** A volunteer's maximum safe room threshold must remain strictly above zero (CHECK capacity > 0).  
-**Age Validation:** An animal's registered age cannot register as a negative integer (CHECK age >= 0).  
-**Status Control:** Restricts lifecycle data entry fields to discrete domain matrices (e.g., 'Fostered', 'Adopted', 'Under Treatment').  
-**Referential Integrity:** Enforces absolute standard consistency preventing unlinked animal mappings to orphaned or non-existent volunteer IDs.  
+- **Capacity Integrity:** A volunteer's maximum safe room threshold must remain strictly above zero (CHECK capacity > 0).  
+- **Age Validation:** An animal's registered age cannot register as a negative integer (CHECK age >= 0).  
+- **Status Control:** Restricts lifecycle data entry fields to discrete domain matrices (e.g., 'Fostered', 'Adopted', 'Under Treatment').  
+- **Referential Integrity:** Enforces absolute standard consistency preventing unlinked animal mappings to orphaned or non-existent volunteer IDs.  
 
 ## 💻 Implemented Production Queries
 Real-time operations are powered by advanced SQL query structures executed dynamically via the client dashboard:
