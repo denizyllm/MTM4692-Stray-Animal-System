@@ -6,7 +6,8 @@ This repository contains the completed engineering implementation for the Applie
 - **Faculty:** Faculty of Chemical Metallurgical   
 - **Department:** Mathematical Engineering   
 - **Instructor:** Lecturer Dr. Fettah KIRAN   
-- **Project Team:** Deniz YILMAZ, Batuhan TEKİNALP, Arif Emre POLAT, Damla Hilal ERDEN   
+- **Project Team:** Deniz YILMAZ, Batuhan TEKİNALP, Arif Emre POLAT, Damla Hilal ERDEN
+- **Presentation:** https://drive.google.com/drive/folders/1gItPUUwl4_j682JJKSe-UMilgwsm74RG?usp=drive_link 
 
 ## 🚩 Problem Definition & Justification
 ### The Problem
